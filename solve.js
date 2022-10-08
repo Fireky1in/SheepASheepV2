@@ -45,7 +45,6 @@ const findSolution = async () => {
       console.log("Found solution", JSON.stringify(solution));
 
       await matchPlayInfoToStr(solution, mapData, (info) => {
-        console.log(info)
         sendMatchInfo(token, mapInfo.map_seed_2, info);
       });
 
