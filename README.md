@@ -9,7 +9,7 @@ npm install protobufjs axios
 34 行加入自己的token
 
 ```bash
-node inex.js
+node index.js
 ```
 
 ## 国内用户
