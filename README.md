@@ -1,5 +1,5 @@
 # SheepASheepV2
-# Based On (https://github.com/NB-Dragon/SheepSolver)[SheepSolver]
+# Based On [https://github.com/NB-Dragon/SheepSolver](SheepSolver)
 ```
 npm install protobufjs axios
 ```
