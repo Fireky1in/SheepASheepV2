@@ -27,7 +27,7 @@ class SheepSolver(object):
         self._card_position.generate_head_data()
 
     def solve(self):
-        print("当前进度为: {}/{}".format(len(self._pick_list), self._card_count))
+        print("progress: {}/{}".format(len(self._pick_list), self._card_count))
         head_list = self._card_position.get_head_key_list()
         for head_item in head_list:
             self._operation_pick_card(head_item)

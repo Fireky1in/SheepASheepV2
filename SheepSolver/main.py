@@ -8,4 +8,4 @@ if __name__ == '__main__':
     sheep_solver.solve()
     end_time = time.time()
     sheep_solver.print_result()
-    print("计算用时: {}".format(end_time - start_time))
+    print("{}".format(end_time - start_time))

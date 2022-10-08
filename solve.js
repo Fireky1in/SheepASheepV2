@@ -7,7 +7,7 @@ const { getMap } = require("./mapUtils");
 const { delay } = require("./utils");
 
 const findSolution = async () => {
-  const py = spawn("python3", ["./SheepSolver/main.py"]);
+  const py = spawn("python3", [__dirname + "/SheepSolver/main.py"]);
   let solution;
 
   py.stdout.on("data", function (data) {
@@ -22,6 +22,13 @@ const findSolution = async () => {
       }
     }
   });
+
+  py.stderr.on("data", function (data) {
+    const outputs = data
+      .toString()
+    console.log(outputs)
+  });
+
   await delay(60);
   py.kill();
   console.log("check answer");
@@ -36,9 +43,9 @@ const findSolution = async () => {
     console.log(mapInfo);
     const mapData = await getMap(mapInfo.map_md5[1], mapInfo.map_seed);
     // console.log(mapData);
+    fs.writeFileSync(__dirname + "/SheepSolver/online_data.json", JSON.stringify(mapData));
     console.log('Finding solution')
 
-    fs.writeFileSync("./SheepSolver/online_data.json", JSON.stringify(mapData));
 
     const solution = await findSolution();
     if (solution) {
