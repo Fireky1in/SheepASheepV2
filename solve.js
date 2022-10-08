@@ -1,106 +1,57 @@
-const protobufjs = require("protobufjs");
 const fs = require("fs");
-var axios = require("axios");
+const axios = require("axios");
+const spawn = require("child_process").spawn;
+const { matchPlayInfoToStr } = require("./getMatchPlayInfo");
+const { getNewMap, sendMatchInfo } = require("./services");
+const { getMap } = require("./mapUtils");
+const { delay } = require("./utils");
 
-function buildMatchPlayInfo(ans, map) {
-  let flattened = [];
+const findSolution = async () => {
+  const py = spawn("python3", ["./SheepSolver/main.py"]);
+  let solution;
 
-  for (idx in map) {
-    flattened = [...flattened, ...map[idx]];
+  py.stdout.on("data", function (data) {
+    const outputs = data
+      .toString()
+      .split(/\r?\n/)
+      .filter((e) => e);
+    for (line of outputs) {
+      // console.log(line)
+      if (line.includes("[")) {
+        solution = JSON.parse(line);
+      }
+    }
+  });
+  await delay(60);
+  py.kill();
+  console.log("check answer");
+  if (!solution) await delay(5);
+  return solution;
+};
+
+(async () => {
+  while (1) {
+    const token = ""
+    const mapInfo = await getNewMap(token);
+    console.log(mapInfo);
+    const mapData = await getMap(mapInfo.map_md5[1], mapInfo.map_seed);
+    // console.log(mapData);
+    console.log('Finding solution')
+
+    fs.writeFileSync("./SheepSolver/online_data.json", JSON.stringify(mapData));
+
+    const solution = await findSolution();
+    if (solution) {
+      console.log("Found solution", JSON.stringify(solution));
+
+      await matchPlayInfoToStr(solution, mapData, (info) => {
+        console.log(info)
+        sendMatchInfo(token, mapInfo.map_seed_2, info);
+      });
+
+      break;
+    } else {
+      console.log("Change to a new map");
+    }
   }
-
-  const stepInfoList = ans.map((index) => {
-    return { chessIndex: index - 1, timeTag: flattened[index - 1].type };
-  });
-
-  const matchPlayInfo = {
-    gameType: 3,
-    stepInfoList,
-  };
-
-  return matchPlayInfo;
-}
-
-function matchPlayInfoToStr(matchPlayInfo, onComplete) {
-  protobufjs.load("yang.proto", (_, root) => {
-    const MatchPlayInfo = root.lookupType("yang.MatchPlayInfo");
-    const buf = MatchPlayInfo.encode(matchPlayInfo).finish();
-    const b64 = Buffer.from(buf).toString("base64");
-
-    onComplete(b64);
-  });
-}
-
-function generateOnlineData(map) {
-  const result = {};
-
-  for (layer in map_data["levelData"]) {
-    result[layer] = map_data["levelData"][layer].map(
-      ({ type, rolNum, rowNum }) => ({
-        type,
-        min_x: rolNum,
-        min_y: rowNum,
-        max_x: rolNum + 8,
-        max_y: rowNum + 8,
-      })
-    );
-  }
-
-  return result;
-}
-
-function sendRequest(token, mapSeed2, matchPlayInfo) {
-  console.log('token', token)
-  console.log('map_seed2', mapSeed2)
-  console.log('matchPlayInfo', matchPlayInfo)
-
-  var data = JSON.stringify({
-    rank_score: 1,
-    rank_state: 1,
-    rank_time: 1094,
-    rank_role: 2,
-    skin: 1,
-    MatchPlayInfo: matchPlayInfo,
-    MapSeed2: mapSeed2,
-    Version: "0.0.1",
-  });
-
-  var config = {
-    method: "post",
-    url: "https://cat-match.easygame2021.com/sheep/v1/game/game_over_ex?",
-    headers: {
-      Connection: "keep-alive",
-      t: token,
-      "content-type": "application/json",
-      "User-Agent":
-        "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.29(0x18001d2c) NetType/WIFI Language/zh_CN",
-      Referer:
-        "https://servicewechat.com/wx141bfb9b73c970a9/34/page-frame.html",
-    },
-    data: data,
-  };
-
-  axios(config)
-    .then(function (response) {
-      console.log(JSON.stringify(response.data));
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-}
-
-fs.readFile("online_data.json", "utf8", (_, data) => {
-  // 先 npm install protobufjs axios
-  // online_data.json 放到同一个目录
-  const map = JSON.parse(data);
-  // answer 放这里
-  const answer = [];
-  // token 放这里
-  const token = ''
-  // map_seed2 放这里
-  const mapSeed2 = ''
-
-  matchPlayInfoToStr(buildMatchPlayInfo(answer, map), (str) => {
-    sendRequest(token, mapSeed2, str);
-  });
-});
+})();
