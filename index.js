@@ -6,7 +6,7 @@ const { getMap } = require("./utils/mapUtils");
 const { delay, getRandom } = require("./utils/helpers");
 
 const findSolution = async () => {
-  const py = spawn("python3", [__dirname + "/SheepSolver/main.py"]);
+  const py = spawn("python", [__dirname + "/SheepSolver/main.py"]);
   let solution;
 
   py.stdout.on("data", function (data) {
