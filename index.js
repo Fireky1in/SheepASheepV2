@@ -23,9 +23,7 @@ const findSolution = async () => {
   });
 
   py.stderr.on("data", function (data) {
-    const outputs = data
-      .toString()
-    console.log(outputs)
+    console.log(data.toString())
   });
 
   const sec = getRandom(60, 90)
