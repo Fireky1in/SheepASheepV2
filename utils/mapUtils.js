@@ -1,5 +1,5 @@
 const axios = require('axios')
-const { Randomizer } = require('./randomizer')
+const { Randomizer } = require('../randomizer')
 
 const getMapFromMD5 = async (md5) => {
   let config = {

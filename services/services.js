@@ -1,5 +1,5 @@
 const axios = require("axios");
-const { getRandom } = require('./utils')
+const { getRandom } = require('../utils/helpers')
 
 const getNewMap = async (token) => {
   const config = {

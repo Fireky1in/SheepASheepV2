@@ -1,10 +1,9 @@
 const fs = require("fs");
-const axios = require("axios");
 const spawn = require("child_process").spawn;
-const { matchPlayInfoToStr } = require("./getMatchPlayInfo");
-const { getNewMap, sendMatchInfo } = require("./services");
-const { getMap } = require("./mapUtils");
-const { delay, getRandom } = require("./utils");
+const { matchPlayInfoToStr } = require("./utils/getMatchPlayInfo");
+const { getNewMap, sendMatchInfo } = require("./services/services");
+const { getMap } = require("./utils/mapUtils");
+const { delay, getRandom } = require("./utils/helpers");
 
 const findSolution = async () => {
   const py = spawn("python3", [__dirname + "/SheepSolver/main.py"]);
