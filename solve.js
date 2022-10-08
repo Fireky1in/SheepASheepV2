@@ -4,7 +4,7 @@ const spawn = require("child_process").spawn;
 const { matchPlayInfoToStr } = require("./getMatchPlayInfo");
 const { getNewMap, sendMatchInfo } = require("./services");
 const { getMap } = require("./mapUtils");
-const { delay } = require("./utils");
+const { delay, getRandom } = require("./utils");
 
 const findSolution = async () => {
   const py = spawn("python3", [__dirname + "/SheepSolver/main.py"]);
@@ -16,7 +16,7 @@ const findSolution = async () => {
       .split(/\r?\n/)
       .filter((e) => e);
     for (line of outputs) {
-      // console.log(line)
+      console.log(line)
       if (line.includes("[")) {
         solution = JSON.parse(line);
       }
@@ -29,7 +29,9 @@ const findSolution = async () => {
     console.log(outputs)
   });
 
-  await delay(60);
+  const sec = getRandom(60, 90)
+  console.log('wait for', sec)
+  await delay(sec);
   py.kill();
   console.log("check answer");
   if (!solution) await delay(5);

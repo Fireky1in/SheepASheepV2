@@ -1,4 +1,5 @@
 const axios = require("axios");
+const { getRandom } = require('./utils')
 
 const getNewMap = async (token) => {
   const config = {
@@ -34,7 +35,7 @@ function sendMatchInfo(token, mapSeed2, matchPlayInfo) {
   var data = JSON.stringify({
     rank_score: 1,
     rank_state: 1,
-    rank_time: 1094,
+    rank_time: getRandom(1000, 1500),
     rank_role: 2,
     skin: 1,
     MatchPlayInfo: matchPlayInfo,
