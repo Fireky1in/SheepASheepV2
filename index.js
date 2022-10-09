@@ -55,7 +55,7 @@ const findSolution = async () => {
     console.log(data.toString());
   });
 
-  const sec = getRandom(60, 90);
+  const sec = getRandom(60, 65);
   console.log("wait for", sec);
   await delay(sec);
 
@@ -103,7 +103,7 @@ const findSolution = async () => {
         console.log("Complete!", result);
         exit(0);
       } else {
-        console.log("Change to a new map");
+        console.log("No solution. Changing to a new map");
         await delay(5);
       }
     } catch (e) {
