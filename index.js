@@ -65,7 +65,12 @@ const findSolution = async () => {
 };
 
 (async () => {
-  const token = await prompt("token: ");
+  let token
+  if(process.argv.slice(2)[0]) {
+    token = process.argv.slice(2)[0]
+  } else {
+    token = await prompt("token: ");
+  }
 
   while (1) {
     retry_count += 1;
