@@ -21,7 +21,7 @@ function buildMatchPlayInfo(ans, map) {
 
 function matchPlayInfoToStr(ans, map) {
 
-  return new Promoise((resolve) => {
+  return new Promise((resolve) => {
     protobufjs.load("yang.proto", (_, root) => {
       const MatchPlayInfo = root.lookupType("yang.MatchPlayInfo");
       const matchPlayInfo = buildMatchPlayInfo(ans, map);
