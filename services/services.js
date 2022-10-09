@@ -27,7 +27,7 @@ const getNewMap = async (token) => {
 
 };
 
-function sendMatchInfo(token, mapSeed2, matchPlayInfo) {
+async function sendMatchInfo(token, mapSeed2, matchPlayInfo) {
   console.log("token", token);
   console.log("map_seed2", mapSeed2);
   console.log("matchPlayInfo", matchPlayInfo);
@@ -55,16 +55,12 @@ function sendMatchInfo(token, mapSeed2, matchPlayInfo) {
       Referer:
         "https://servicewechat.com/wx141bfb9b73c970a9/34/page-frame.html",
     },
-    data: data,
+    data,
   };
 
-  axios(config)
-    .then(function (response) {
-      console.log(JSON.stringify(response.data));
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
+  const response = await axios(config)
+
+  return response.data
 }
 
 module.exports = { sendMatchInfo, getNewMap }

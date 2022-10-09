@@ -19,15 +19,18 @@ function buildMatchPlayInfo(ans, map) {
   return matchPlayInfo;
 }
 
-function matchPlayInfoToStr(ans, map, onComplete) {
-  protobufjs.load("yang.proto", (_, root) => {
-    const MatchPlayInfo = root.lookupType("yang.MatchPlayInfo");
-    const matchPlayInfo = buildMatchPlayInfo(ans, map)
-    const buf = MatchPlayInfo.encode(matchPlayInfo).finish();
-    const b64 = Buffer.from(buf).toString("base64");
+function matchPlayInfoToStr(ans, map) {
 
-    onComplete(b64);
+  return new Promoise((resolve) => {
+    protobufjs.load("yang.proto", (_, root) => {
+      const MatchPlayInfo = root.lookupType("yang.MatchPlayInfo");
+      const matchPlayInfo = buildMatchPlayInfo(ans, map);
+      const buf = MatchPlayInfo.encode(matchPlayInfo).finish();
+      const b64 = Buffer.from(buf).toString("base64");
+
+      resolve(b64);
+    });
   });
 }
 
-module.exports = { matchPlayInfoToStr }
+module.exports = { matchPlayInfoToStr };

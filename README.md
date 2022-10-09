@@ -6,7 +6,7 @@
 npm install protobufjs axios
 ```
 
-index.js 42 行加入自己的token
+装好依赖运行
 
 ```bash
 node index.js
