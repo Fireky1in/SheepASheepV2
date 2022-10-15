@@ -9,7 +9,7 @@ const { exit } = require("process");
 retry_count = 0;
 
 const findSolution = async () => {
-  const py = spawn("python", [__dirname + "/SheepSolver/main.py"]);
+  const py = spawn("python3", [__dirname + "/SheepSolver/main.py"]);
   let solution;
 
   py.stdout.on("data", function (data) {
@@ -27,6 +27,7 @@ const findSolution = async () => {
     for (line of outputs) {
       if (line.includes("[")) {
         solution = JSON.parse(line);
+        console.log('Found solution. Waiting for timeout')
       } else if (line.includes("progress")) {
         const group = line.match(/(\d+)\/(\d+)/);
 

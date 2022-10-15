@@ -1,2 +1,3 @@
 node_modules/
 SheepSolver/online_data.json
+SheepSolver/**/__pycache__
