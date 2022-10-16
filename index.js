@@ -10,12 +10,12 @@ const { findSolution } = require("./utils/solver");
 let retry_count = 0;
 
 const initialize = async (token) => {
-  console.log("Getting map info");
+  console.log("获取地图信息");
   const mapInfo = await getMapInfo(token);
   console.log("Map seed:", mapInfo.map_seed);
-  console.log("Getting map data");
+  console.log("获取地图数据");
   const mapData = await getMap(mapInfo.map_md5[1], mapInfo.map_seed);
-  console.log("Writing map data to map_data.json");
+  console.log("写入地图数据到 map_data.json");
   fs.writeFileSync(__dirname + "/map_data.json", JSON.stringify(mapData));
 
   return [mapInfo, mapData];
@@ -25,8 +25,8 @@ const startThreads = () => {
   const promises = [];
   promises.push(findSolution("reverse", 0.85, 60));
   promises.push(findSolution("reverse", 0, 60));
+  promises.push(findSolution("", 0.85, 60));
   promises.push(findSolution("", 0, 60));
-  promises.push(findSolution("", null, 60));
 
   return promises;
 };
@@ -36,9 +36,9 @@ const filterSolutions = async (threads) => {
   const validSolutions = solutions.filter((solution) => solution);
   if (validSolutions.length > 0) {
     console.log(
-      "Found",
+      "找到",
       validSolutions.length,
-      "solution. Using first valid solution"
+      "个解. 使用第一个解"
     );
 
     return validSolutions[0];
@@ -47,10 +47,10 @@ const filterSolutions = async (threads) => {
 };
 
 const waitForSomeTime = async (runningTime) => {
-  console.log("Solver running time:", runningTime, "seconds");
+  console.log("求解线程运行时间:", runningTime, "秒");
   if (runningTime < 80) {
     const waitTime = 80 - runningTime;
-    console.log("Wait for", waitTime, "seconds");
+    console.log("等待", waitTime, "秒");
     console.log("===================================");
     await delay(waitTime);
   }
@@ -60,27 +60,27 @@ const waitForSomeTime = async (runningTime) => {
   if (process.argv.slice(2)[0]) {
     token = process.argv.slice(2)[0];
   } else {
-    token = await prompt("token: ");
+    token = await prompt("请输入token: ");
   }
 
   while (1) {
     console.clear();
     retry_count += 1;
     try {
-      console.log(">>> No.", retry_count, "try <<<");
+      console.log(">>> 第", retry_count, "次尝试 <<<");
       console.log("===================================");
       await delay(3);
-      console.log(">> Initialization <<");
+      console.log(">> 初始化地图信息 <<");
       const [mapInfo, mapData] = await initialize(token);
       console.log("===================================");
-      console.log(">> Finding solution <<");
+      console.log(">> 求解 <<");
       const startTime = performance.now();
       const threads = startThreads();
       console.log("===================================");
 
       const solution = await filterSolutions(threads);
       if (!solution) {
-        console.log("No solution found, start next round");
+        console.log("无解, 开始下一轮尝试");
         await delay(3);
         continue;
       }
@@ -89,7 +89,7 @@ const waitForSomeTime = async (runningTime) => {
       const runningTime = Math.ceil((endTime - startTime) / 1000);
       await waitForSomeTime(runningTime);
 
-      console.log(">> Sending match info <<");
+      console.log(">> 发送MatchPlayInfo到服务器 <<");
       const matchPlayInfo = await matchPlayInfoToStr(mapData, solution);
       console.log(matchPlayInfo);
       const result = await sendMatchInfo(
@@ -98,10 +98,11 @@ const waitForSomeTime = async (runningTime) => {
         matchPlayInfo
       );
 
-      console.log("Completed", result);
+      console.log(">> 完成 <<", result);
       exit(0);
     } catch (e) {
-      console.log(e);
+      console.err(e);
+      console.log('出现异常')
       exit(1);
     }
   }

@@ -1,16 +1,25 @@
 const spawn = require("child_process").spawn;
 
-const findSolution = (issort, percent, t = 60) => {
+const getMode = (issort, percent) => {
+  if (issort !== "true" && issort !== "reverse" && percent === 0.85) {
+    return "普通模式";
+  } else if (issort == "reverse" && percent == 0.85) {
+    return "高层优先模式";
+  } else if (issort != "true" && issort != "reverse" && percent == 0) {
+    return "优先移除两张相同类型的手牌模式";
+  } else if (issort == "reverse" && percent == 0) {
+    return "高层优先且优先移除两张相同类型的手牌模式";
+  } else {
+    return "自定义模式";
+  }
+};
+
+const findSolution = (issort, percent = 0, t = 60) => {
   return new Promise((resolve) => {
     let solved = false;
     let solution = undefined;
-    console.log(
-      "starting thread with mode:",
-      "issort",
-      issort,
-      "percent",
-      percent
-    );
+    const mode = getMode(issort, percent);
+    console.log("启动", mode);
 
     const pyExec = process.platform === "win32" ? "python" : "python3";
     const args = [__dirname + "/../sheep/autoSolve.py", "-t", t];
@@ -43,21 +52,9 @@ const findSolution = (issort, percent, t = 60) => {
 
     py.on("exit", async () => {
       if (!solved) {
-        console.log(
-          "Not solved in 60s using",
-          "issort:",
-          issort,
-          "percent:",
-          percent
-        );
+        console.log(mode, "在", t, "秒内没有找到解");
       } else {
-        console.log(
-          "Solved in 60s using",
-          "issort:",
-          issort,
-          "percent:",
-          percent
-        );
+        console.log(mode, "在", t, "秒内成功找到解");
       }
       resolve(solution);
     });
