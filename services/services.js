@@ -1,5 +1,5 @@
 const axios = require("axios");
-const { getRandom } = require('../utils/helpers')
+const { getRandom } = require("../utils/helpers");
 
 const getNewMap = async (token) => {
   const config = {
@@ -16,15 +16,13 @@ const getNewMap = async (token) => {
     },
   };
 
-
   try {
-    const response = await axios(config)
+    const response = await axios(config);
 
-    return response.data.data
+    return response.data.data;
   } catch (err) {
-    console.log(err)
+    console.log(err);
   }
-
 };
 
 async function sendMatchInfo(token, mapSeed2, matchPlayInfo) {
@@ -58,9 +56,9 @@ async function sendMatchInfo(token, mapSeed2, matchPlayInfo) {
     data,
   };
 
-  const response = await axios(config)
+  const response = await axios(config);
 
-  return response.data
+  return response.data;
 }
 
-module.exports = { sendMatchInfo, getNewMap }
+module.exports = { sendMatchInfo, getNewMap };

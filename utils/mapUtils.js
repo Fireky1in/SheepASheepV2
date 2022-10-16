@@ -1,5 +1,5 @@
-const axios = require('axios')
-const { Randomizer } = require('./randomizer')
+const axios = require("axios");
+const { Randomizer } = require("./randomizer");
 
 const getMapFromMD5 = async (md5) => {
   let config = {
@@ -159,29 +159,26 @@ const getMapFromMapInformation = (map, mapSeed) => {
   return chessboard.init(map, mapSeed);
 };
 
-const processLevelData = ({ levelData }) => {
-  const result = {};
+// const processLevelData = ({ levelData }) => {
+//   const result = {};
 
-  for (layer in levelData) {
-    result[layer] = levelData[layer].map(
-      ({ type, rolNum, rowNum }) => ({
-        type,
-        min_x: rolNum,
-        min_y: rowNum,
-        max_x: rolNum + 8,
-        max_y: rowNum + 8,
-      })
-    );
-  }
+//   for (layer in levelData) {
+//     result[layer] = levelData[layer].map(({ type, rolNum, rowNum }) => ({
+//       type,
+//       min_x: rolNum,
+//       min_y: rowNum,
+//       max_x: rolNum + 8,
+//       max_y: rowNum + 8,
+//     }));
+//   }
 
-  return result;
-}
+//   return result;
+// };
 
 const getMap = async (md5, mapSeed) => {
   const rawMap = await getMapFromMD5(md5);
   // return processLevelData(getMapFromMapInformation(rawMap, mapSeed));
   return getMapFromMapInformation(rawMap, mapSeed);
-
 };
 
 module.exports = { getMap };
