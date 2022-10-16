@@ -26,7 +26,7 @@ const findSolution = (issort, percent, t = 60) => {
       percent
     );
 
-    const py = spawn("python3", args);
+    const py = spawn("python", args);
     let solved = false;
     let solution = undefined;
 
@@ -38,6 +38,7 @@ const findSolution = (issort, percent, t = 60) => {
         .filter((e) => e);
 
       for (line of outputs) {
+        console.log(line)
         if (line.includes("result")) {
           solved = true;
           solution = JSON.parse(line.replace("result", ""));
