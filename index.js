@@ -3,7 +3,7 @@ const spawn = require("child_process").spawn;
 const { matchPlayInfoToStr } = require("./utils/getMatchPlayInfo");
 const { getNewMap, sendMatchInfo } = require("./services/services");
 const { getMap } = require("./utils/mapUtils");
-const { delay, getRandom, prompt } = require("./utils/helpers");
+const { delay, prompt } = require("./utils/helpers");
 const { exit } = require("process");
 
 let retry_count = 0;
@@ -92,7 +92,7 @@ const findSolution = (issort, percent, t = 60) => {
       console.log("Writing map to map_data.json");
       fs.writeFileSync(__dirname + "/map_data.json", JSON.stringify(mapData));
 
-      const startTime = performance.now()
+      const startTime = performance.now();
 
       console.log("Finding solution");
       const promises = [];
@@ -113,16 +113,16 @@ const findSolution = (issort, percent, t = 60) => {
           "solution. Using first valid solution"
         );
       }
-      const solution = validSolutions[0]
+      const solution = validSolutions[0];
 
-      const endTime = performance.now()
-      const runningTime = Math.ceil((endTime - startTime) / 1000)
+      const endTime = performance.now();
+      const runningTime = Math.ceil((endTime - startTime) / 1000);
 
-      console.log('Solver running time:', runningTime)
-      if(runningTime < 80) {
-        const waitTime = 80 - runningTime
-        console.log('wait for', waitTime, 'seconds')
-        await delay(waitTime)
+      console.log("Solver running time:", runningTime, 'seconds');
+      if (runningTime < 80) {
+        const waitTime = 80 - runningTime;
+        console.log("wait for", waitTime, "seconds");
+        await delay(waitTime);
       }
 
       console.log("Sending match info");
@@ -135,7 +135,7 @@ const findSolution = (issort, percent, t = 60) => {
       );
 
       console.log("Completed", result);
-      exit(0)
+      exit(0);
     } catch (e) {
       console.log(e);
       exit(1);

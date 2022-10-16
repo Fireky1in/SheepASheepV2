@@ -121,7 +121,7 @@ class SheepSolver(object):
         if self.picked_list != []:
             print(json.dumps(self.picked_list))
         else:
-            print("牌面无解")
+            print("牌面无解".encode('utf-8'))
 
     def get_result(self):
         if self.picked_list != []:
