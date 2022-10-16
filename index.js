@@ -33,6 +33,7 @@ const startThreads = () => {
 
 const filterSolutions = async (threads) => {
   const solutions = await Promise.all(threads);
+  console.log("===================================");
   const validSolutions = solutions.filter((solution) => solution);
   if (validSolutions.length > 0) {
     console.log("找到", validSolutions.length, "个解. 使用第一个解");
@@ -73,7 +74,7 @@ const waitForSomeTime = async (runningTime) => {
       const startTime = performance.now();
       const threads = startThreads();
       console.log("===================================");
-
+      
       const solution = await filterSolutions(threads);
       if (!solution) {
         console.log("无解, 开始下一轮尝试");
