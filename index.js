@@ -88,11 +88,13 @@ const waitForSomeTime = async (runningTime) => {
       console.log(">> 发送MatchPlayInfo到服务器 <<");
       const matchPlayInfo = await matchPlayInfoToStr(mapData, solution);
       // console.log(matchPlayInfo);
-      const { err_code: errCode, data } = await sendMatchInfo(
+      const result = await sendMatchInfo(
         token,
         mapInfo.map_seed_2,
         matchPlayInfo
       );
+      console.log("服务器返回数据:", result);
+      const { error_code: errCode, data } = result;
       if (errCode !== 0) {
         console.error("服务器返回数据出错，开始下一轮尝试");
         continue;
