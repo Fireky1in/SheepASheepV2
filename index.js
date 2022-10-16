@@ -91,7 +91,7 @@ const findSolution = (issort, percent, t = 60) => {
       const mapData = await getMap(mapInfo.map_md5[1], mapInfo.map_seed);
       console.log("Writing map to map_data.json");
       fs.writeFileSync(__dirname + "/map_data.json", JSON.stringify(mapData));
-      console.log("===================================")
+      console.log("===================================");
 
       const startTime = performance.now();
 
@@ -101,7 +101,7 @@ const findSolution = (issort, percent, t = 60) => {
       promises.push(findSolution("reverse", 0, 60));
       promises.push(findSolution("", 0, 60));
       promises.push(findSolution("", null, 60));
-      console.log("===================================")
+      console.log("===================================");
       const solutions = await Promise.all(promises);
       const validSolutions = solutions.filter((solution) => solution);
       if (validSolutions.length === 0) {
@@ -124,7 +124,7 @@ const findSolution = (issort, percent, t = 60) => {
       if (runningTime < 80) {
         const waitTime = 80 - runningTime;
         console.log("wait for", waitTime, "seconds");
-        console.log("===================================")
+        console.log("===================================");
         await delay(waitTime);
       }
 
