@@ -10,14 +10,8 @@ let retry_count = 0;
 
 const findSolution = (issort, percent, t = 60) => {
   return new Promise((resolve) => {
-    const args = [__dirname + "/sheep/autoSolve.py", "-t", t];
-    if (issort == "reverse") {
-      args.push("-s", "reverse");
-    }
-    if (percent !== null) {
-      args.push("-p", percent);
-    }
-
+    let solved = false;
+    let solution = undefined;
     console.log(
       "starting thread with mode:",
       "issort",
@@ -26,9 +20,16 @@ const findSolution = (issort, percent, t = 60) => {
       percent
     );
 
-    const py = spawn("python", args);
-    let solved = false;
-    let solution = undefined;
+    const pyExec = process.platform === "win32" ? "python" : "python3";
+    const args = [__dirname + "/sheep/autoSolve.py", "-t", t];
+    if (issort == "reverse") {
+      args.push("-s", "reverse");
+    }
+    if (percent !== null) {
+      args.push("-p", percent);
+    }
+
+    const py = spawn(pyExec, args);
 
     // py.stdout.setEncoding('utf-8')
     py.stdout.on("data", function (data) {
@@ -38,7 +39,6 @@ const findSolution = (issort, percent, t = 60) => {
         .filter((e) => e);
 
       for (line of outputs) {
-        console.log(line)
         if (line.includes("result")) {
           solved = true;
           solution = JSON.parse(line.replace("result", ""));
@@ -119,7 +119,7 @@ const findSolution = (issort, percent, t = 60) => {
       const endTime = performance.now();
       const runningTime = Math.ceil((endTime - startTime) / 1000);
 
-      console.log("Solver running time:", runningTime, 'seconds');
+      console.log("Solver running time:", runningTime, "seconds");
       if (runningTime < 80) {
         const waitTime = 80 - runningTime;
         console.log("wait for", waitTime, "seconds");
