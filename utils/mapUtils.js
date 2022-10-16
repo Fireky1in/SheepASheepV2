@@ -179,7 +179,9 @@ const processLevelData = ({ levelData }) => {
 
 const getMap = async (md5, mapSeed) => {
   const rawMap = await getMapFromMD5(md5);
-  return processLevelData(getMapFromMapInformation(rawMap, mapSeed));
+  // return processLevelData(getMapFromMapInformation(rawMap, mapSeed));
+  return getMapFromMapInformation(rawMap, mapSeed);
+
 };
 
 module.exports = { getMap };

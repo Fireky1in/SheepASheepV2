@@ -1,14 +1,19 @@
 const protobufjs = require("protobufjs");
 
-function buildMatchPlayInfo(ans, map) {
+function buildMatchPlayInfo(map, solution) {
   let flattened = [];
 
-  for (idx in map) {
-    flattened = [...flattened, ...map[idx]];
+  for (idx in map.levelData) {
+    flattened = [...flattened, ...map.levelData[idx]];
   }
 
-  const stepInfoList = ans.map((index) => {
-    return { chessIndex: index - 1, timeTag: flattened[index - 1].type };
+  const idIndexMap = {};
+  flattened.forEach((value, index) => {
+    idIndexMap[value.id] = { ...value, index };
+  });
+
+  const stepInfoList = solution.map((id) => {
+    return { chessIndex: idIndexMap[id].index, timeTag: idIndexMap[id].type };
   });
 
   const matchPlayInfo = {
@@ -19,12 +24,11 @@ function buildMatchPlayInfo(ans, map) {
   return matchPlayInfo;
 }
 
-function matchPlayInfoToStr(ans, map) {
-
+function matchPlayInfoToStr(map, solution) {
   return new Promise((resolve) => {
     protobufjs.load("yang.proto", (_, root) => {
       const MatchPlayInfo = root.lookupType("yang.MatchPlayInfo");
-      const matchPlayInfo = buildMatchPlayInfo(ans, map);
+      const matchPlayInfo = buildMatchPlayInfo(map, solution);
       const buf = MatchPlayInfo.encode(matchPlayInfo).finish();
       const b64 = Buffer.from(buf).toString("base64");
 

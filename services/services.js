@@ -30,7 +30,7 @@ const getNewMap = async (token) => {
 async function sendMatchInfo(token, mapSeed2, matchPlayInfo) {
   console.log("token", token);
   console.log("map_seed2", mapSeed2);
-  console.log("matchPlayInfo", matchPlayInfo);
+  // console.log("matchPlayInfo", matchPlayInfo);
 
   var data = JSON.stringify({
     rank_score: 1,
