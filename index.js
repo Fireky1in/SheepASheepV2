@@ -67,13 +67,13 @@ const waitForSomeTime = async (runningTime) => {
     console.clear();
     retry_count += 1;
     try {
-      console.log("Executing no.", retry_count, "try");
+      console.log(">>> No.", retry_count, "try <<<");
       console.log("===================================");
       await delay(3);
-      console.log(">Initialization<");
+      console.log(">> Initialization <<");
       const [mapInfo, mapData] = await initialize(token);
       console.log("===================================");
-      console.log(">Finding solution<");
+      console.log(">> Finding solution <<");
       const startTime = performance.now();
       const threads = startThreads();
       console.log("===================================");
@@ -89,7 +89,7 @@ const waitForSomeTime = async (runningTime) => {
       const runningTime = Math.ceil((endTime - startTime) / 1000);
       await waitForSomeTime(runningTime);
 
-      console.log(">Sending match info<");
+      console.log(">> Sending match info <<");
       const matchPlayInfo = await matchPlayInfoToStr(mapData, solution);
       console.log(matchPlayInfo);
       const result = await sendMatchInfo(
