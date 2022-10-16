@@ -94,8 +94,8 @@ const waitForSomeTime = async (runningTime) => {
         matchPlayInfo
       );
       console.log("服务器返回数据:", result);
-      const { error_code: errCode, data } = result;
-      if (errCode !== 0) {
+      const { err_code: errorCode, data } = result;
+      if (errorCode !== 0) {
         console.error("服务器返回数据出错，开始下一轮尝试");
         continue;
       }
@@ -105,7 +105,7 @@ const waitForSomeTime = async (runningTime) => {
       }
 
       console.log(">> 完成  <<");
-      console.log("获得皮肤id为", data.skin_id, "的皮肤");
+      console.log("获得皮肤id为", result.data.skin_id, "的皮肤");
       exit(0);
     } catch (e) {
       console.error(e);

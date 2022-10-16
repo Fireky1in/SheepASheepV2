@@ -54,7 +54,7 @@ const findSolution = (issort, percent = 0, t = 60) => {
       if (!solved) {
         console.log(mode, "在", t, "秒内没有找到解");
       } else {
-        console.log(mode, "在", t, "秒内成功找到解");
+        console.log(mode, "在", t, "秒内成功找到解, 等待其他线程结束");
       }
       resolve(solution);
     });
