@@ -1,7 +1,7 @@
 const axios = require("axios");
 const { getRandom } = require("../utils/helpers");
 
-const getNewMap = async (token) => {
+const getMapInfo = async (token) => {
   const config = {
     method: "get",
     url: "https://cat-match.easygame2021.com/sheep/v1/game/map_info_ex?matchType=3",
@@ -61,4 +61,4 @@ async function sendMatchInfo(token, mapSeed2, matchPlayInfo) {
   return response.data;
 }
 
-module.exports = { sendMatchInfo, getNewMap };
+module.exports = { sendMatchInfo, getMapInfo };

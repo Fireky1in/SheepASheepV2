@@ -1,75 +1,58 @@
 const fs = require("fs");
-const spawn = require("child_process").spawn;
+const { exit } = require("process");
 const { matchPlayInfoToStr } = require("./utils/getMatchPlayInfo");
-const { getNewMap, sendMatchInfo } = require("./services/services");
+const { getMapInfo, sendMatchInfo } = require("./services/services");
 const { getMap } = require("./utils/mapUtils");
 const { delay, prompt } = require("./utils/helpers");
-const { exit } = require("process");
+const { findSolution } = require("./utils/solver");
 
 let retry_count = 0;
 
-const findSolution = (issort, percent, t = 60) => {
-  return new Promise((resolve) => {
-    let solved = false;
-    let solution = undefined;
+const initialize = async (token) => {
+  console.log("Getting map info");
+  const mapInfo = await getMapInfo(token);
+  console.log("Map seed:", mapInfo.map_seed);
+  console.log("Getting map data");
+  const mapData = await getMap(mapInfo.map_md5[1], mapInfo.map_seed);
+  console.log("Writing map data to map_data.json");
+  fs.writeFileSync(__dirname + "/map_data.json", JSON.stringify(mapData));
+
+  return [mapInfo, mapData];
+};
+
+const startThreads = () => {
+  const promises = [];
+  promises.push(findSolution("reverse", 0.85, 60));
+  promises.push(findSolution("reverse", 0, 60));
+  promises.push(findSolution("", 0, 60));
+  promises.push(findSolution("", null, 60));
+
+  return promises;
+};
+
+const filterSolutions = async (threads) => {
+  const solutions = await Promise.all(threads);
+  const validSolutions = solutions.filter((solution) => solution);
+  if (validSolutions.length > 0) {
     console.log(
-      "starting thread with mode:",
-      "issort",
-      issort,
-      "percent",
-      percent
+      "Found",
+      validSolutions.length,
+      "solution. Using first valid solution"
     );
 
-    const pyExec = process.platform === "win32" ? "python" : "python3";
-    const args = [__dirname + "/sheep/autoSolve.py", "-t", t];
-    if (issort == "reverse") {
-      args.push("-s", "reverse");
-    }
-    if (percent !== null) {
-      args.push("-p", percent);
-    }
+    return validSolutions[0];
+  }
+  return undefined;
+};
 
-    const py = spawn(pyExec, args);
-
-    py.stdout.on("data", function (data) {
-      const outputs = data
-        .toString()
-        .split(/\r?\n/)
-        .filter((e) => e);
-
-      for (line of outputs) {
-        if (line.includes("result")) {
-          solved = true;
-          solution = JSON.parse(line.replace("result", ""));
-        }
-      }
-    });
-
-    py.stderr.on("data", function (data) {
-      console.log(data.toString());
-    });
-
-    py.on("exit", async () => {
-      if (!solved) {
-        console.log(
-          "Not solved in 60s using",
-          "issort:",
-          issort,
-          "percent:",
-          percent
-        );
-      } else {
-        console.log(
-          "Solved in 60s using",
-          "issort:",
-          issort,
-          "percent:",
-          percent
-        );
-      }
-      resolve(solution);
-    });
-  });
+const waitForSomeTime = async (runningTime) => {
+  console.log("Solver running time:", runningTime, "seconds");
+  if (runningTime < 80) {
+    const waitTime = 80 - runningTime;
+    console.log("Wait for", waitTime, "seconds");
+    console.log("===================================");
+    await delay(waitTime);
+  }
 };
 
 (async () => {
@@ -83,52 +66,29 @@ const findSolution = (issort, percent, t = 60) => {
     console.clear();
     retry_count += 1;
     try {
-      console.log("executing No.", retry_count, "try");
+      console.log("Executing no.", retry_count, "try");
+      console.log("===================================");
       await delay(3);
-      console.log("Getting new map");
-      const mapInfo = await getNewMap(token);
-      console.log("map seed", mapInfo.map_seed);
-      const mapData = await getMap(mapInfo.map_md5[1], mapInfo.map_seed);
-      console.log("Writing map to map_data.json");
-      fs.writeFileSync(__dirname + "/map_data.json", JSON.stringify(mapData));
+      console.log(">Initialization<");
+      const [mapInfo, mapData] = await initialize(token);
       console.log("===================================");
-
+      console.log(">Finding solution<");
       const startTime = performance.now();
-
-      console.log("Finding solution");
-      const promises = [];
-      promises.push(findSolution("reverse", 0.85, 60));
-      promises.push(findSolution("reverse", 0, 60));
-      promises.push(findSolution("", 0, 60));
-      promises.push(findSolution("", null, 60));
+      const threads = startThreads();
       console.log("===================================");
-      const solutions = await Promise.all(promises);
-      const validSolutions = solutions.filter((solution) => solution);
-      if (validSolutions.length === 0) {
+
+      const solution = await filterSolutions(threads);
+      if (!solution) {
         console.log("No solution found, start next round");
         await delay(3);
         continue;
-      } else {
-        console.log(
-          "found",
-          validSolutions.length,
-          "solution. Using first valid solution"
-        );
       }
-      const solution = validSolutions[0];
-
       const endTime = performance.now();
+
       const runningTime = Math.ceil((endTime - startTime) / 1000);
+      await waitForSomeTime(runningTime);
 
-      console.log("Solver running time:", runningTime, "seconds");
-      if (runningTime < 80) {
-        const waitTime = 80 - runningTime;
-        console.log("wait for", waitTime, "seconds");
-        console.log("===================================");
-        await delay(waitTime);
-      }
-
-      console.log("Sending match info");
+      console.log(">Sending match info<");
       const matchPlayInfo = await matchPlayInfoToStr(mapData, solution);
       console.log(matchPlayInfo);
       const result = await sendMatchInfo(
