@@ -35,11 +35,7 @@ const filterSolutions = async (threads) => {
   const solutions = await Promise.all(threads);
   const validSolutions = solutions.filter((solution) => solution);
   if (validSolutions.length > 0) {
-    console.log(
-      "找到",
-      validSolutions.length,
-      "个解. 使用第一个解"
-    );
+    console.log("找到", validSolutions.length, "个解. 使用第一个解");
 
     return validSolutions[0];
   }
@@ -92,17 +88,25 @@ const waitForSomeTime = async (runningTime) => {
       console.log(">> 发送MatchPlayInfo到服务器 <<");
       const matchPlayInfo = await matchPlayInfoToStr(mapData, solution);
       console.log(matchPlayInfo);
-      const result = await sendMatchInfo(
+      const { err_code: errCode, data } = await sendMatchInfo(
         token,
         mapInfo.map_seed_2,
         matchPlayInfo
       );
+      if( errCode !== 0) {
+        console.error('服务器返回数据出错，开始下一轮尝试')
+        continue
+      }
+      if (data.skin_id === 0) {
+        console.error('未获得新皮肤，可能今日已通关或者解不正确')
+        exit(1)
+      }
 
       console.log(">> 完成 <<", result);
       exit(0);
     } catch (e) {
-      console.err(e);
-      console.log('出现异常')
+      console.error(e);
+      console.log("出现异常");
       exit(1);
     }
   }
