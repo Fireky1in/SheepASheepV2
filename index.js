@@ -97,13 +97,13 @@ const waitForSomeTime = async (runningTime) => {
       const { err_code: errorCode, data } = result;
       if (errorCode !== 0) {
         console.error("服务器返回数据出错，开始下一轮尝试");
+        delay(5)
         continue;
       }
       if (data.skin_id === 0) {
         console.error("未获得新皮肤，可能今日已通关或者解不正确");
         exit(1);
       }
-
       console.log(">> 完成  <<");
       console.log("获得皮肤id为", result.data.skin_id, "的皮肤");
       exit(0);
