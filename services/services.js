@@ -61,4 +61,117 @@ async function sendMatchInfo(token, mapSeed2, matchPlayInfo) {
   return response.data;
 }
 
-module.exports = { sendMatchInfo, getMapInfo };
+const getTopicInfo = async (token) => {
+  const config = {
+    method: "get",
+    url: "https://cat-match.easygame2021.com/sheep/v1/game/topic/info?",
+    headers: {
+      Connection: "keep-alive",
+      t: token,
+      "content-type": "application/json",
+      "User-Agent":
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.29(0x18001d2c) NetType/WIFI Language/zh_CN",
+      Referer:
+        "https://servicewechat.com/wx141bfb9b73c970a9/34/page-frame.html",
+    },
+  };
+
+  try {
+    const response = await axios(config);
+
+    return response.data.data;
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+async function topicJoinSide(token, side) {
+  var data = JSON.stringify({
+    type: side,
+  });
+
+  var config = {
+    method: "post",
+    url: "https://cat-match.easygame2021.com/sheep/v1/game/topic/game_join?",
+    headers: {
+      Connection: "keep-alive",
+      t: token,
+      "content-type": "application/json",
+      "User-Agent":
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.29(0x18001d2c) NetType/WIFI Language/zh_CN",
+      Referer:
+        "https://servicewechat.com/wx141bfb9b73c970a9/34/page-frame.html",
+    },
+    data,
+  };
+
+  const response = await axios(config);
+
+  return response.data;
+}
+
+const getTopicMapInfo = async (token) => {
+  const config = {
+    method: "get",
+    url: "https://cat-match.easygame2021.com/sheep/v1/game/topic/game_start?",
+    headers: {
+      Connection: "keep-alive",
+      t: token,
+      "content-type": "application/json",
+      "User-Agent":
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.29(0x18001d2c) NetType/WIFI Language/zh_CN",
+      Referer:
+        "https://servicewechat.com/wx141bfb9b73c970a9/34/page-frame.html",
+    },
+  };
+
+  try {
+    const response = await axios(config);
+
+    return response.data.data;
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+async function sendTopicMatchInfo(token, mapSeed2, matchPlayInfo) {
+  // console.log("token", token);
+  // console.log("map_seed2", mapSeed2);
+  // console.log("matchPlayInfo", matchPlayInfo);
+
+  var data = JSON.stringify({
+    rank_state: 1,
+    rank_time: getRandom(1000, 1500),
+    play_info: matchPlayInfo,
+    MapSeed2: mapSeed2,
+    Version: "0.0.1",
+  });
+
+  var config = {
+    method: "post",
+    url: "https://cat-match.easygame2021.com/sheep/v1/game/topic/game_over?",
+    headers: {
+      Connection: "keep-alive",
+      t: token,
+      "content-type": "application/json",
+      "User-Agent":
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.29(0x18001d2c) NetType/WIFI Language/zh_CN",
+      Referer:
+        "https://servicewechat.com/wx141bfb9b73c970a9/34/page-frame.html",
+    },
+    data,
+  };
+
+  const response = await axios(config);
+
+  return response.data;
+}
+
+module.exports = {
+  sendMatchInfo,
+  getMapInfo,
+  getTopicInfo,
+  topicJoinSide,
+  getTopicMapInfo,
+  sendTopicMatchInfo
+};
