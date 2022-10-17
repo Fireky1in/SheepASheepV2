@@ -2,36 +2,14 @@ const fs = require("fs");
 const { exit } = require("process");
 const { performance } = require("perf_hooks");
 const { matchPlayInfoToStr } = require("./utils/getMatchPlayInfo");
-const {
-  sendTopicMatchInfo,
-  getTopicInfo,
-  getTopicMapInfo,
-  topicJoinSide,
-} = require("./services/services");
+const { getMapInfo, sendMatchInfo } = require("./services/services");
 const { getMap } = require("./utils/mapUtils");
 const { delay } = require("./utils/helpers");
 const { startThreads, filterSolutions } = require("./utils/solver");
 
 const initialize = async (token) => {
-  const { side } = await getTopicInfo(token);
-  if (side === 0) {
-    console.log("今日未选择队伍，自动选择左侧队伍");
-    const { err_code: errorCode } = await topicJoinSide(token, 1);
-    if (errorCode !== 0) {
-      console.error("无法加入队伍");
-      exit(1);
-    }
-    const { side } = await getTopicInfo(token);
-    if (side !== 1) {
-      console.error("无法加入队伍");
-      exit(1);
-    }
-  } else {
-    console.log("已加入队伍:", side === 1 ? "左侧" : "右侧");
-  }
-
   console.log("获取地图信息");
-  const mapInfo = await getTopicMapInfo(token);
+  const mapInfo = await getMapInfo(token);
   console.log("Map seed:", mapInfo.map_seed);
   console.log("获取地图数据");
   const mapData = await getMap(mapInfo.map_md5[1], mapInfo.map_seed);
@@ -49,7 +27,7 @@ const waitForSomeTime = async (runningTime) => {
   }
 };
 
-const topic = async () => {
+const challenge = async () => {
   let retry_count = 0;
   let token
 
@@ -89,7 +67,7 @@ const topic = async () => {
       console.log(">> 发送MatchPlayInfo到服务器 <<");
       const matchPlayInfo = await matchPlayInfoToStr(mapData, solution);
       // console.log(matchPlayInfo);
-      const result = await sendTopicMatchInfo(
+      const result = await sendMatchInfo(
         token,
         mapInfo.map_seed_2,
         matchPlayInfo
@@ -114,6 +92,6 @@ const topic = async () => {
       exit(1);
     }
   }
-}
+};
 
-topic()
+challenge()

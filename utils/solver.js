@@ -14,7 +14,7 @@ const getMode = (issort, percent) => {
   }
 };
 
-const findSolution = (issort, percent = 0, t = 60) => {
+const findSolution = (mapData, issort, percent = 0, t = 60) => {
   return new Promise((resolve) => {
     let solved = false;
     let solution = undefined;
@@ -22,12 +22,17 @@ const findSolution = (issort, percent = 0, t = 60) => {
     console.log("启动", mode);
 
     const pyExec = process.platform === "win32" ? "python" : "python3";
-    const args = [__dirname + "/../sheep/autoSolve.py", "-t", t];
+    const args = [
+      __dirname + "/../sheep/autoSolve.py",
+      "-t",
+      t,
+      "-p",
+      percent,
+      "-i",
+      JSON.stringify(mapData),
+    ];
     if (issort == "reverse") {
       args.push("-s", "reverse");
-    }
-    if (percent !== null) {
-      args.push("-p", percent);
     }
 
     const py = spawn(pyExec, args);
@@ -40,6 +45,7 @@ const findSolution = (issort, percent = 0, t = 60) => {
 
       for (line of outputs) {
         if (line.includes("result")) {
+          console.log(line)
           solved = true;
           solution = JSON.parse(line.replace("result", ""));
         }
@@ -61,4 +67,26 @@ const findSolution = (issort, percent = 0, t = 60) => {
   });
 };
 
-module.exports = { findSolution };
+const filterSolutions = async (threads) => {
+  const solutions = await Promise.all(threads);
+  console.log("===================================");
+  const validSolutions = solutions.filter((solution) => solution);
+  if (validSolutions.length > 0) {
+    console.log("找到", validSolutions.length, "个解. 使用第一个解");
+
+    return validSolutions[0];
+  }
+  return undefined;
+};
+
+const startThreads = (mapData) => {
+  const promises = [];
+  promises.push(findSolution(mapData, "reverse", 0.85, 60));
+  promises.push(findSolution(mapData, "reverse", 0, 60));
+  promises.push(findSolution(mapData, "", 0.85, 60));
+  promises.push(findSolution(mapData, "", 0, 60));
+
+  return promises;
+};
+
+module.exports = { filterSolutions, startThreads };

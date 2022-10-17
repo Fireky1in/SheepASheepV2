@@ -1,117 +1,71 @@
-const fs = require("fs");
-const { exit } = require("process");
-const { performance } = require("perf_hooks");
-const { matchPlayInfoToStr } = require("./utils/getMatchPlayInfo");
-const { getMapInfo, sendMatchInfo } = require("./services/services");
-const { getMap } = require("./utils/mapUtils");
-const { delay, prompt } = require("./utils/helpers");
-const { findSolution } = require("./utils/solver");
+const spawn = require("child_process").spawn;
+const { Server } = require("socket.io");
 
-let retry_count = 0;
+const spawnSolverProcess = (fileName, token, socket) => {
+  const solverProcess = spawn("node", [fileName, token]);
+  solverProcess.stdout.on("data", (data) => {
+    const outputs = data
+      .toString()
+      .split(/\r?\n/)
+      .filter((e) => e);
 
-const initialize = async (token) => {
-  console.log("获取地图信息");
-  const mapInfo = await getMapInfo(token);
-  console.log("Map seed:", mapInfo.map_seed);
-  console.log("获取地图数据");
-  const mapData = await getMap(mapInfo.map_md5[1], mapInfo.map_seed);
-  console.log("写入地图数据到 map_data.json");
-  fs.writeFileSync(__dirname + "/map_data.json", JSON.stringify(mapData));
-
-  return [mapInfo, mapData];
-};
-
-const startThreads = () => {
-  const promises = [];
-  promises.push(findSolution("reverse", 0.85, 60));
-  promises.push(findSolution("reverse", 0, 60));
-  promises.push(findSolution("", 0.85, 60));
-  promises.push(findSolution("", 0, 60));
-
-  return promises;
-};
-
-const filterSolutions = async (threads) => {
-  const solutions = await Promise.all(threads);
-  console.log("===================================");
-  const validSolutions = solutions.filter((solution) => solution);
-  if (validSolutions.length > 0) {
-    console.log("找到", validSolutions.length, "个解. 使用第一个解");
-
-    return validSolutions[0];
-  }
-  return undefined;
-};
-
-const waitForSomeTime = async (runningTime) => {
-  console.log("求解线程运行时间:", runningTime, "秒");
-  if (runningTime < 80) {
-    const waitTime = 80 - runningTime;
-    console.log("等待", waitTime, "秒");
-    console.log("===================================");
-    await delay(waitTime);
-  }
-};
-
-(async () => {
-  if (process.argv.slice(2)[0]) {
-    token = process.argv.slice(2)[0];
-  } else {
-    token = await prompt("请输入token: ");
-  }
-
-  while (1) {
-    console.clear();
-    retry_count += 1;
-    try {
-      console.log(">>> 第", retry_count, "次尝试 <<<");
-      console.log("===================================");
-      await delay(3);
-      console.log(">> 初始化地图信息 <<");
-      const [mapInfo, mapData] = await initialize(token);
-      console.log("===================================");
-      console.log(">> 求解 <<");
-      const startTime = performance.now();
-      const threads = startThreads();
-      console.log("===================================");
-      
-      const solution = await filterSolutions(threads);
-      if (!solution) {
-        console.log("无解, 开始下一轮尝试");
-        await delay(3);
-        continue;
-      }
-      const endTime = performance.now();
-
-      const runningTime = Math.ceil((endTime - startTime) / 1000);
-      await waitForSomeTime(runningTime);
-
-      console.log(">> 发送MatchPlayInfo到服务器 <<");
-      const matchPlayInfo = await matchPlayInfoToStr(mapData, solution);
-      // console.log(matchPlayInfo);
-      const result = await sendMatchInfo(
-        token,
-        mapInfo.map_seed_2,
-        matchPlayInfo
-      );
-      console.log("服务器返回数据:", result);
-      const { err_code: errorCode, data } = result;
-      if (errorCode !== 0) {
-        console.error("服务器返回数据出错，开始下一轮尝试");
-        delay(5)
-        continue;
-      }
-      if (data.skin_id === 0) {
-        console.error("未获得新皮肤，可能今日已通关或者解不正确");
-        exit(1);
-      }
-      console.log(">> 完成  <<");
-      console.log("获得皮肤id为", result.data.skin_id, "的皮肤");
-      exit(0);
-    } catch (e) {
-      console.error(e);
-      console.log("出现异常");
-      exit(1);
+    for (line of outputs) {
+      socket.emit("solverUpdate", line)
     }
-  }
-})();
+  });
+
+  solverProcess.stderr.on("data", (data) => {
+    socket.emit("solverUpdate", data.toString())
+  });
+
+  solverProcess.on("exit", () => {
+    socket.data.challenge_started = false;
+    console.log("solver process exited");
+  });
+
+  return solverProcess;
+};
+
+const io = new Server(3500, {
+  cors: {
+    origin: "*",
+    credentials: false,
+  },
+});
+
+io.on("connection", (socket) => {
+  // ...
+  console.log(socket.id, "connected");
+
+  socket.on("disconnecting", () => {
+    console.log("client disconnecting");
+    console.log("killing solver processes");
+    if (socket.data.challenge_started) {
+      socket.data.challenge_process.kill();
+    }
+  });
+
+  socket.on("challenge", (ylgyToken) => {
+    console.log("socket.id:", socket.id, ylgyToken);
+    if (!socket.data.challenge_started) {
+      console.log("starting challenge solver process");
+      socket.data.challenge_started = true;
+      const challenge_process = spawnSolverProcess('challenge.js', ylgyToken, socket)
+      socket.data.challenge_process = challenge_process;
+    } else {
+      socket.emit("serverError", "Challenge already started");
+    }
+  });
+
+  socket.on("topic", (ylgyToken) => {
+    console.log("socket.id:", socket.id, ylgyToken);
+    if (!socket.data.topic_started) {
+      console.log("starting topic solver process");
+      socket.data.topic_started = true;
+      const topic_process = spawnSolverProcess('challenge.js', ylgyToken, socket)
+      socket.data.topic_process = topic_process;
+    } else {
+      socket.emit("serverError", "Topic already started");
+    }
+  });
+});
