@@ -106,7 +106,7 @@ const waitForSomeTime = async (runningTime) => {
         exit(1);
       }
       console.log(">> 完成  <<");
-      console.log("获得皮肤id为", result.data.skin_id, "的皮肤");
+      console.log("获得皮肤id为", data.skin_id, "的皮肤");
       exit(0);
     } catch (e) {
       console.error(e);
