@@ -120,7 +120,7 @@ const waitForSomeTime = async (runningTime) => {
       const { err_code: errorCode, data } = result;
       if (errorCode !== 0) {
         console.error("服务器返回数据出错, 可能今日已通关或者解不正确");
-        exit(1)
+        exit(1);
       }
       console.log(">> 完成  <<");
       console.log("获得皮肤id为", data.skin_id, "的皮肤");
