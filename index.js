@@ -98,7 +98,7 @@ const waitForSomeTime = async (runningTime) => {
       const { err_code: errorCode, data } = result;
       if (errorCode !== 0) {
         console.error("服务器返回数据出错，开始下一轮尝试");
-        delay(5)
+        await delay(5)
         continue;
       }
       if (data.skin_id === 0) {
