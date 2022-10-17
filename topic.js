@@ -65,7 +65,7 @@ const topic = async () => {
   token = process.argv.slice(2)[0];
 
   while (1) {
-    console.clear();
+    console.log(">>>CLEAR<<<");
     retry_count += 1;
     try {
       console.log(">>> 第", retry_count, "次尝试 <<<");
