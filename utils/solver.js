@@ -45,7 +45,6 @@ const findSolution = (mapData, issort, percent = 0, t = 60) => {
 
       for (line of outputs) {
         if (line.includes("result")) {
-          console.log(line)
           solved = true;
           solution = JSON.parse(line.replace("result", ""));
         }

@@ -46,26 +46,24 @@ io.on("connection", (socket) => {
   });
 
   socket.on("challenge", (ylgyToken) => {
-    console.log("socket.id:", socket.id, ylgyToken);
     if (!socket.data.challenge_started) {
-      console.log("starting challenge solver process");
+      console.log("socket.id:", socket.id, 'started challenge solver');
       socket.data.challenge_started = true;
       const challenge_process = spawnSolverProcess('challenge.js', ylgyToken, socket)
       socket.data.challenge_process = challenge_process;
     } else {
-      socket.emit("serverError", "Challenge already started");
+      socket.emit("serverError", "Challenge solver already started");
     }
   });
 
   socket.on("topic", (ylgyToken) => {
-    console.log("socket.id:", socket.id, ylgyToken);
     if (!socket.data.topic_started) {
-      console.log("starting topic solver process");
+      console.log("socket.id:", socket.id, 'started topic solver');
       socket.data.topic_started = true;
-      const topic_process = spawnSolverProcess('challenge.js', ylgyToken, socket)
+      const topic_process = spawnSolverProcess('topic.js', ylgyToken, socket)
       socket.data.topic_process = topic_process;
     } else {
-      socket.emit("serverError", "Topic already started");
+      socket.emit("serverError", "Topic solver already started");
     }
   });
 });
