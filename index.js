@@ -47,7 +47,7 @@ io.on("connection", (socket) => {
 
   socket.on("challenge", (ylgyToken) => {
     if (!socket.data.challenge_started) {
-      console.log("socket.id:", socket.id, 'started challenge solver');
+      console.log("id:", socket.id, 'started challenge solver');
       socket.data.challenge_started = true;
       const challenge_process = spawnSolverProcess('challenge.js', ylgyToken, socket)
       socket.data.challenge_process = challenge_process;
