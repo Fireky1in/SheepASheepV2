@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 import "./App.css";
 
-const URL = "http://server.i6502.com:3500";
+const URL = "http://localhost:3500";
 const socket = io(URL);
 
 const Button = () => {
@@ -59,6 +59,10 @@ function App() {
     });
 
     socket.on("solverUpdate", (msg) => {
+      if (msg === ">>>CLEAR<<<") {
+        setMessageList([]);
+        return;
+      }
       setMessageList((messageList) => [...messageList, msg]);
       console.log(msg);
     });
