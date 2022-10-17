@@ -9,24 +9,28 @@ const {
   topicJoinSide,
 } = require("./services/services");
 const { getMap } = require("./utils/mapUtils");
-const { delay, prompt } = require("./utils/helpers");
+const { delay, prompt, getRandom } = require("./utils/helpers");
 const { findSolution } = require("./utils/solver");
 
 let retry_count = 0;
 
 const initialize = async (token) => {
   const { side } = await getTopicInfo(token);
+
   if (side === 0) {
-    console.log("今日未选择队伍，自动选择左侧队伍");
-    const { err_code: errorCode } = await topicJoinSide(token, 1);
+    const randSide = getRandom(1, 3);
+    console.log("今日未选择队伍，随机选择", randSide === 1 ? '左侧' : '右侧',"队伍");
+    const { err_code: errorCode } = await topicJoinSide(token, randSide);
     if (errorCode !== 0) {
       console.error("无法加入队伍");
       exit(1);
     }
     const { side } = await getTopicInfo(token);
-    if (side !== 1) {
+    if (side !== randSide) {
       console.error("无法加入队伍");
       exit(1);
+    } else {
+      console.log("已加入队伍:", side === 1 ? "左侧" : "右侧");
     }
   } else {
     console.log("已加入队伍:", side === 1 ? "左侧" : "右侧");
