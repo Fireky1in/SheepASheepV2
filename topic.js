@@ -9,7 +9,6 @@ const {
   topicJoinSide,
 } = require("./services/services");
 const { getMap } = require("./utils/mapUtils");
-const { delay } = require("./utils/helpers");
 const { startThreads, filterSolutions } = require("./utils/solver");
 const { delay, getRandom } = require("./utils/helpers");
 
