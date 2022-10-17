@@ -141,7 +141,7 @@ async function sendTopicMatchInfo(token, mapSeed2, matchPlayInfo) {
 
   var data = JSON.stringify({
     rank_state: 1,
-    rank_time: getRandom(1000, 1500),
+    rank_time: getRandom(300, 600),
     play_info: matchPlayInfo,
     MapSeed2: mapSeed2,
     Version: "0.0.1",

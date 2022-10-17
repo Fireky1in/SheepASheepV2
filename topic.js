@@ -11,20 +11,25 @@ const {
 const { getMap } = require("./utils/mapUtils");
 const { delay } = require("./utils/helpers");
 const { startThreads, filterSolutions } = require("./utils/solver");
+const { delay, getRandom } = require("./utils/helpers");
 
 const initialize = async (token) => {
   const { side } = await getTopicInfo(token);
+
   if (side === 0) {
-    console.log("今日未选择队伍，自动选择左侧队伍");
-    const { err_code: errorCode } = await topicJoinSide(token, 1);
+    const randSide = getRandom(1, 3);
+    console.log("今日未选择队伍，随机选择", randSide === 1 ? '左侧' : '右侧',"队伍");
+    const { err_code: errorCode } = await topicJoinSide(token, randSide);
     if (errorCode !== 0) {
       console.error("无法加入队伍");
       exit(1);
     }
     const { side } = await getTopicInfo(token);
-    if (side !== 1) {
+    if (side !== randSide) {
       console.error("无法加入队伍");
       exit(1);
+    } else {
+      console.log("已加入队伍:", side === 1 ? "左侧" : "右侧");
     }
   } else {
     console.log("已加入队伍:", side === 1 ? "左侧" : "右侧");
@@ -97,16 +102,11 @@ const topic = async () => {
       console.log("服务器返回数据:", result);
       const { err_code: errorCode, data } = result;
       if (errorCode !== 0) {
-        console.error("服务器返回数据出错，开始下一轮尝试");
-        delay(5);
-        continue;
-      }
-      if (data.skin_id === 0) {
-        console.error("未获得新皮肤，可能今日已通关或者解不正确");
+        console.error("服务器返回数据出错, 可能今日已通关或者解不正确");
         exit(1);
       }
       console.log(">> 完成  <<");
-      console.log("获得皮肤id为", result.data.skin_id, "的皮肤");
+      console.log("获得皮肤id为", data.skin_id, "的皮肤");
       exit(0);
     } catch (e) {
       console.error(e);

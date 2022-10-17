@@ -1,4 +1,4 @@
-# SheepASheepV2 Based On [https://github.com/NB-Dragon/SheepSolver](SheepSolver)
+# SheepASheepV2 Based On longhuan1999/sheep
 
 ## 安装
 
@@ -10,6 +10,11 @@ npm install protobufjs axios
 
 ```bash
 node index.js
+```
+
+话题战：
+```bash
+node topic.js
 ```
 
 ## 国内用户

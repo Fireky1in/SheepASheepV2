@@ -29,11 +29,11 @@ const waitForSomeTime = async (runningTime) => {
 
 const challenge = async () => {
   let retry_count = 0;
-  let token
+  let token;
 
   if (!process.argv.slice(2)[0]) {
-    console.log('未提供token')
-    exit(1)
+    console.log("未提供token");
+    exit(1);
   }
 
   token = process.argv.slice(2)[0];
@@ -76,7 +76,7 @@ const challenge = async () => {
       const { err_code: errorCode, data } = result;
       if (errorCode !== 0) {
         console.error("服务器返回数据出错，开始下一轮尝试");
-        delay(5);
+        await delay(3);
         continue;
       }
       if (data.skin_id === 0) {
@@ -84,7 +84,7 @@ const challenge = async () => {
         exit(1);
       }
       console.log(">> 完成  <<");
-      console.log("获得皮肤id为", result.data.skin_id, "的皮肤");
+      console.log("获得皮肤id为", data.skin_id, "的皮肤");
       exit(0);
     } catch (e) {
       console.error(e);
@@ -94,4 +94,4 @@ const challenge = async () => {
   }
 };
 
-challenge()
+challenge();
