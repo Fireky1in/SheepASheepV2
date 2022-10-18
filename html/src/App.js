@@ -1,87 +1,41 @@
 import { io } from "socket.io-client";
-import { useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
+import { Outlet } from "react-router-dom";
+import NavBar from "./components/NavBar";
+import { SERVER_URL } from "./utils/constants";
 
-import "./App.css";
+export const SocketContext = createContext();
 
-const URL = "http://localhost:3500";
-const socket = io(URL);
-
-const Button = () => {
-  const [token, setToken] = useState("");
-  return (
-    <div className="flex flex-col w-auto space-y-4">
-      <div className="flex flex-col w-auto space-y-4">
-        <div>请在下方输入 token</div>
-        <textarea
-          className="w-80 h-40 border border-slate-600 p-3"
-          onChange={(e) => {
-            setToken(e.target.value);
-          }}
-          value={token}
-        />
-      </div>
-      <div>
-        <button
-          className="text-lg border-2 border-blue-500 w-20 rounded-lg p-2"
-          onClick={() => {
-            if (!socket.connected) return;
-            socket.emit("challenge", token);
-          }}
-        >
-          冲!
-        </button>
-      </div>
-    </div>
-  );
-};
-
-const MessageCard = ({ msg }) => {
-  return <div>{msg}</div>;
-};
-
-function App() {
-  const [connected, setConnected] = useState(false);
-  const [messageList, setMessageList] = useState([]);
+const App = () => {
+  const [socket] = useState(io(SERVER_URL, { autoConnect: false }));
+  const [connected, setConnected] = useState(false)
 
   useEffect(() => {
+    socket.connect()
+
     socket.on("connect", () => {
       console.log("connected to server");
-      setConnected(true);
+      setConnected(true)
     });
 
     socket.on("disconnect", () => {
       console.log("disconnected from server");
-      setConnected(false);
+      setConnected(false)
     });
-
-    socket.on("serverError", (msg) => {
-      console.error(msg);
-    });
-
-    socket.on("solverUpdate", (msg) => {
-      if (msg === ">>>CLEAR<<<") {
-        setMessageList([]);
-        return;
-      }
-      setMessageList((messageList) => [...messageList, msg]);
-      console.log(msg);
-    });
-  }, []);
+  })
 
   return (
-    <div className="flex flex-col self-center w-11/12">
-      <div className="flex w-auto self-center text-xl"> 羊了个羊 </div>
-      <div className="flex flex-col w-auto space-y-4">
-        {!connected && <div>Connecting</div>}
-        {connected && <Button />}
-        <div className="flex flex-col w-auto space-y-2 border p-3 rounded-md border-slate-300">
-          {messageList.map((msg, index) => (
-            <MessageCard key={msg + index} msg={msg} />
-          ))}
+    <SocketContext.Provider value={[socket, connected]}>
+      <div className="flex flex-col h-screen bg-gray-100">
+        <div className="p-3">
+          <NavBar />
+        </div>
+        <div className="px-6 py-8 h-full text-gray-700">
+          <Outlet />
         </div>
       </div>
-    </div>
+    </SocketContext.Provider>
   );
-}
+};
 
 export default App;

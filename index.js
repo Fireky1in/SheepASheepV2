@@ -3,6 +3,7 @@ const { Server } = require("socket.io");
 
 const spawnSolverProcess = (fileName, token, socket) => {
   const solverProcess = spawn("node", [fileName, token]);
+  socket.data[`${fileName}Started`] = true;
   solverProcess.stdout.on("data", (data) => {
     const outputs = data
       .toString()
@@ -10,16 +11,16 @@ const spawnSolverProcess = (fileName, token, socket) => {
       .filter((e) => e);
 
     for (line of outputs) {
-      socket.emit("solverUpdate", line)
+      socket.emit("solverUpdate", line);
     }
   });
 
   solverProcess.stderr.on("data", (data) => {
-    socket.emit("solverUpdate", data.toString())
+    socket.emit("solverUpdate", data.toString());
   });
 
   solverProcess.on("exit", () => {
-    socket.data.challenge_started = false;
+  socket.data[`${fileName}Started`] = false;
     console.log("solver process exited");
   });
 
@@ -47,9 +48,12 @@ io.on("connection", (socket) => {
 
   socket.on("challenge", (ylgyToken) => {
     if (!socket.data.challenge_started) {
-      console.log("id:", socket.id, 'started challenge solver');
-      socket.data.challenge_started = true;
-      const challenge_process = spawnSolverProcess('challenge.js', ylgyToken, socket)
+      console.log("id:", socket.id, "started challenge solver");
+      const challenge_process = spawnSolverProcess(
+        "challenge.js",
+        ylgyToken,
+        socket
+      );
       socket.data.challenge_process = challenge_process;
     } else {
       socket.emit("serverError", "Challenge solver already started");
@@ -58,9 +62,8 @@ io.on("connection", (socket) => {
 
   socket.on("topic", (ylgyToken) => {
     if (!socket.data.topic_started) {
-      console.log("socket.id:", socket.id, 'started topic solver');
-      socket.data.topic_started = true;
-      const topic_process = spawnSolverProcess('topic.js', ylgyToken, socket)
+      console.log("socket.id:", socket.id, "started topic solver");
+      const topic_process = spawnSolverProcess("topic.js", ylgyToken, socket);
       socket.data.topic_process = topic_process;
     } else {
       socket.emit("serverError", "Topic solver already started");
