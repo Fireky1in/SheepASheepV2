@@ -95,19 +95,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='羊了个羊自动求解')
     parser.add_argument('-s', '--issort', dest='issort', type=str, default="", help="是否对可选牌进行排序，默认不排序。\ntrue：从小到大排序\nreverse：从大到小排序\n为空或者其他：不排序")
     parser.add_argument('-p', '--percent', dest='percent', type=float, default=0.85, help="进度超过多少时优先移除已有两张相同类型的手牌，取值范围0~1。")
-    parser.add_argument('-i', '--input', dest='input', type=str, default="map_data.json", help="关卡json数据文件路径，默认当前路径下 map_data.json。")
+    parser.add_argument('-i', '--input', dest='input', type=str, default="{}", help="关卡json数据文件路径，默认当前路径下 map_data.json。")
     parser.add_argument('-t', '--timeout', dest='timeout', type=int, default=60, help="自动求解超时时间，单位秒")
     args = parser.parse_args()
-    if os.path.isfile(args.input):
-        with open(args.input, "r", encoding="utf8") as f:
-            try:
-                map_data = json.loads(f.read())
-            except:
-                input("文件 %s 内容格式错误，无法读取，请确保文件内容为JSON！"%args.input)
-                exit(1)
-    else:
-        input("文件 %s 不存在，请检查路径！"%args.input)
-        exit(1)
+    map_data = json.loads(args.input)
     if args.percent > 1 or args.percent < 0:
         input("参数 percent[p] 取值范围为 0~1 !"%args.input)
         exit(1)

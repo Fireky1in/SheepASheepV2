@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+console.log("每日挑战请运行 node challenge.js , 今日话题请运行 node topic.js");
+=======
 const fs = require("fs");
 const { exit } = require("process");
 const { performance } = require("perf_hooks");
@@ -116,3 +119,4 @@ const waitForSomeTime = async (runningTime) => {
     }
   }
 })();
+>>>>>>> 6e89391b9b2e7f25e82cbe946416e8fadf4588ce
