@@ -8,17 +8,9 @@ const {
   topicJoinSide,
 } = require("./services/services");
 const { getMap } = require("./utils/mapUtils");
-<<<<<<< HEAD
 const { startThreads, filterSolutions } = require("./utils/solver");
 const { delay, getRandom, prompt } = require("./utils/helpers");
 const { getSkinName } = require("./utils/skins");
-=======
-const { delay, prompt, getRandom } = require("./utils/helpers");
-const { findSolution } = require("./utils/solver");
-const { getSkinName } = require("./utils/skins");
-
-let retry_count = 0;
->>>>>>> 6e89391b9b2e7f25e82cbe946416e8fadf4588ce
 
 const initialize = async (token) => {
   const { side } = await getTopicInfo(token);
@@ -123,16 +115,11 @@ const topic = async () => {
         console.error("服务器返回数据出错, 可能今日已通关或者解不正确");
         exit(1);
       }
-<<<<<<< HEAD
       console.log(">> 完成 <<");
       console.log("获得皮肤", getSkinName(data.skin_id));
       if (serverMode) {
         console.log(">>>COMPLETED<<<");
       }
-=======
-      console.log(">> 完成  <<");
-      console.log("获得皮肤", getSkinName(data.skin_id));
->>>>>>> 6e89391b9b2e7f25e82cbe946416e8fadf4588ce
       exit(0);
     } catch (e) {
       console.error(e);
