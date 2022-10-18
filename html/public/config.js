@@ -1,1 +1,1 @@
-export const SERVER_URL = 'http://localhost:3500'
+window.SERVER_URL = 'http://localhost:3500'

@@ -2,27 +2,27 @@ import { io } from "socket.io-client";
 import { createContext, useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import NavBar from "./components/NavBar";
-import { SERVER_URL } from "./utils/constants";
 
 export const SocketContext = createContext();
+const SERVER_URL = window.SERVER_URL;
 
 const App = () => {
   const [socket] = useState(io(SERVER_URL, { autoConnect: false }));
-  const [connected, setConnected] = useState(false)
+  const [connected, setConnected] = useState(false);
 
   useEffect(() => {
-    socket.connect()
+    socket.connect();
 
     socket.on("connect", () => {
       console.log("connected to server");
-      setConnected(true)
+      setConnected(true);
     });
 
     socket.on("disconnect", () => {
       console.log("disconnected from server");
-      setConnected(false)
+      setConnected(false);
     });
-  })
+  });
 
   return (
     <SocketContext.Provider value={[socket, connected]}>
