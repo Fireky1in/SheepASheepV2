@@ -1,10 +1,13 @@
 const axios = require("axios");
 const { getRandom } = require("../utils/helpers");
 
+const BASE_URL = "https://cat-match.easygame2021.com/sheep/v1/game";
+const STATIC_ASSETS_URL = "https://cat-match-static.easygame2021.com";
+
 const getMapInfo = async (token) => {
   const config = {
     method: "get",
-    url: "https://cat-match.easygame2021.com/sheep/v1/game/map_info_ex?matchType=3",
+    url: `${BASE_URL}/map_info_ex?matchType=3`,
     headers: {
       Connection: "keep-alive",
       t: token,
@@ -43,7 +46,7 @@ async function sendMatchInfo(token, mapSeed2, matchPlayInfo) {
 
   var config = {
     method: "post",
-    url: "https://cat-match.easygame2021.com/sheep/v1/game/game_over_ex?",
+    url: `${BASE_URL}/game_over_ex?`,
     headers: {
       Connection: "keep-alive",
       t: token,
@@ -64,7 +67,7 @@ async function sendMatchInfo(token, mapSeed2, matchPlayInfo) {
 const getTopicInfo = async (token) => {
   const config = {
     method: "get",
-    url: "https://cat-match.easygame2021.com/sheep/v1/game/topic/info?",
+    url: `${BASE_URL}/topic/info?`,
     headers: {
       Connection: "keep-alive",
       t: token,
@@ -92,7 +95,7 @@ async function topicJoinSide(token, side) {
 
   var config = {
     method: "post",
-    url: "https://cat-match.easygame2021.com/sheep/v1/game/topic/game_join?",
+    url: `${BASE_URL}/topic/game_join?`,
     headers: {
       Connection: "keep-alive",
       t: token,
@@ -113,7 +116,7 @@ async function topicJoinSide(token, side) {
 const getTopicMapInfo = async (token) => {
   const config = {
     method: "get",
-    url: "https://cat-match.easygame2021.com/sheep/v1/game/topic/game_start?",
+    url: `${BASE_URL}/topic/game_start?`,
     headers: {
       Connection: "keep-alive",
       t: token,
@@ -149,7 +152,7 @@ async function sendTopicMatchInfo(token, mapSeed2, matchPlayInfo) {
 
   var config = {
     method: "post",
-    url: "https://cat-match.easygame2021.com/sheep/v1/game/topic/game_over?",
+    url: `${BASE_URL}/topic/game_over?`,
     headers: {
       Connection: "keep-alive",
       t: token,
@@ -167,11 +170,28 @@ async function sendTopicMatchInfo(token, mapSeed2, matchPlayInfo) {
   return response.data;
 }
 
+const getMapFromMD5 = async (md5) => {
+  let config = {
+    method: "get",
+    url: `${STATIC_ASSETS_URL}/maps/${md5}.txt`,
+  };
+
+  try {
+    const response = await axios(config);
+
+    return response.data;
+  } catch (ex) {
+    console.log(ex);
+    throw ex;
+  }
+};
+
 module.exports = {
+  getMapFromMD5,
   sendMatchInfo,
   getMapInfo,
   getTopicInfo,
   topicJoinSide,
   getTopicMapInfo,
-  sendTopicMatchInfo
+  sendTopicMatchInfo,
 };

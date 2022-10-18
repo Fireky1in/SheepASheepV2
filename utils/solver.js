@@ -52,7 +52,7 @@ const findSolution = (mapData, issort, percent = 0, t = 60) => {
     });
 
     py.stderr.on("data", function (data) {
-      console.log(data.toString());
+      console.error(data.toString());
     });
 
     py.on("exit", async () => {
@@ -80,10 +80,10 @@ const filterSolutions = async (threads) => {
 
 const startThreads = (mapData) => {
   const promises = [];
-  promises.push(findSolution(mapData, "reverse", 0.85, 60));
-  promises.push(findSolution(mapData, "reverse", 0, 60));
-  promises.push(findSolution(mapData, "", 0.85, 60));
-  promises.push(findSolution(mapData, "", 0, 60));
+  promises.push(findSolution(mapData, "reverse", 0.85, 20));
+  promises.push(findSolution(mapData, "reverse", 0, 20));
+  // promises.push(findSolution(mapData, "", 0.85, 60));
+  // promises.push(findSolution(mapData, "", 0, 60));
 
   return promises;
 };

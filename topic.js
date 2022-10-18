@@ -105,8 +105,9 @@ const topic = async () => {
         console.error("服务器返回数据出错, 可能今日已通关或者解不正确");
         exit(1);
       }
-      console.log(">> 完成  <<");
+      console.log(">> 完成 <<");
       console.log("获得皮肤", getSkinName(data.skin_id));
+      console.log(">>>COMPLETED<<<");
       exit(0);
     } catch (e) {
       console.error(e);
