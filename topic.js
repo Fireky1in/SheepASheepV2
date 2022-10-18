@@ -11,6 +11,7 @@ const {
 const { getMap } = require("./utils/mapUtils");
 const { delay, prompt, getRandom } = require("./utils/helpers");
 const { findSolution } = require("./utils/solver");
+const { getSkinName } = require("./utils/skins");
 
 let retry_count = 0;
 
@@ -127,7 +128,7 @@ const waitForSomeTime = async (runningTime) => {
         exit(1);
       }
       console.log(">> 完成  <<");
-      console.log("获得皮肤id为", data.skin_id, "的皮肤");
+      console.log("获得皮肤", getSkinName(data.skin_id));
       exit(0);
     } catch (e) {
       console.error(e);
