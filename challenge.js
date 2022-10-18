@@ -6,6 +6,7 @@ const { getMapInfo, sendMatchInfo } = require("./services/services");
 const { getMap } = require("./utils/mapUtils");
 const { delay } = require("./utils/helpers");
 const { startThreads, filterSolutions } = require("./utils/solver");
+const { getSkinName } = require("./utils/skins");
 
 const initialize = async (token) => {
   console.log("获取地图信息");
@@ -84,7 +85,7 @@ const challenge = async () => {
         exit(1);
       }
       console.log(">> 完成  <<");
-      console.log("获得皮肤id为", data.skin_id, "的皮肤");
+      console.log("获得皮肤", getSkinName(data.skin_id));
       exit(0);
     } catch (e) {
       console.error(e);

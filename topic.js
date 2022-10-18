@@ -11,6 +11,7 @@ const {
 const { getMap } = require("./utils/mapUtils");
 const { startThreads, filterSolutions } = require("./utils/solver");
 const { delay, getRandom } = require("./utils/helpers");
+const { getSkinName } = require("./utils/skins");
 
 const initialize = async (token) => {
   const { side } = await getTopicInfo(token);
@@ -105,7 +106,7 @@ const topic = async () => {
         exit(1);
       }
       console.log(">> 完成  <<");
-      console.log("获得皮肤id为", data.skin_id, "的皮肤");
+      console.log("获得皮肤", getSkinName(data.skin_id));
       exit(0);
     } catch (e) {
       console.error(e);
