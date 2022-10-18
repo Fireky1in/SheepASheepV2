@@ -1,4 +1,3 @@
-const fs = require("fs");
 const { exit } = require("process");
 const { performance } = require("perf_hooks");
 const { matchPlayInfoToStr } = require("./utils/getMatchPlayInfo");
@@ -10,7 +9,7 @@ const {
 } = require("./services/services");
 const { getMap } = require("./utils/mapUtils");
 const { startThreads, filterSolutions } = require("./utils/solver");
-const { delay, getRandom } = require("./utils/helpers");
+const { delay, getRandom, prompt } = require("./utils/helpers");
 const { getSkinName } = require("./utils/skins");
 
 const initialize = async (token) => {
@@ -18,7 +17,11 @@ const initialize = async (token) => {
 
   if (side === 0) {
     const randSide = getRandom(1, 3);
-    console.log("今日未选择队伍，随机选择", randSide === 1 ? '左侧' : '右侧',"队伍");
+    console.log(
+      "今日未选择队伍，随机选择",
+      randSide === 1 ? "左侧" : "右侧",
+      "队伍"
+    );
     const { err_code: errorCode } = await topicJoinSide(token, randSide);
     if (errorCode !== 0) {
       console.error("无法加入队伍");
@@ -37,7 +40,7 @@ const initialize = async (token) => {
 
   console.log("获取地图信息");
   const mapInfo = await getTopicMapInfo(token);
-  console.log("Map seed:", mapInfo.map_seed);
+  console.log("map seed:", mapInfo.map_seed);
   console.log("获取地图数据");
   const mapData = await getMap(mapInfo.map_md5[1], mapInfo.map_seed);
 
@@ -55,21 +58,28 @@ const waitForSomeTime = async (runningTime) => {
 };
 
 const topic = async () => {
-  let retry_count = 0;
-  let token
+  let retryCount = 0;
+  let token;
+  let serverMode = false;
 
-  if (!process.argv.slice(2)[0]) {
-    console.log('未提供token')
-    exit(1)
+  if (process.argv.slice(2)[0] === "-t") {
+    token = process.argv.slice(2)[0];
+    serverMode = true;
+    if (!token) {
+      console.log("未提供token");
+      exit(1);
+    }
+  } else {
+    token = await prompt("请输入token: ");
   }
 
-  token = process.argv.slice(2)[0];
-
   while (1) {
-    console.log(">>>CLEAR<<<");
-    retry_count += 1;
+    if (serverMode) {
+      console.log(">>>CLEAR<<<");
+    }
+    retryCount += 1;
     try {
-      console.log(">>> 第", retry_count, "次尝试 <<<");
+      console.log(">>> 第", retryCount, "次尝试 <<<");
       console.log("===================================");
       await delay(3);
       console.log(">> 初始化地图信息 <<");
@@ -107,7 +117,9 @@ const topic = async () => {
       }
       console.log(">> 完成 <<");
       console.log("获得皮肤", getSkinName(data.skin_id));
-      console.log(">>>COMPLETED<<<");
+      if (serverMode) {
+        console.log(">>>COMPLETED<<<");
+      }
       exit(0);
     } catch (e) {
       console.error(e);
@@ -115,6 +127,6 @@ const topic = async () => {
       exit(1);
     }
   }
-}
+};
 
-topic()
+topic();

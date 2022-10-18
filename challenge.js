@@ -1,17 +1,16 @@
-const fs = require("fs");
 const { exit } = require("process");
 const { performance } = require("perf_hooks");
 const { matchPlayInfoToStr } = require("./utils/getMatchPlayInfo");
 const { getMapInfo, sendMatchInfo } = require("./services/services");
 const { getMap } = require("./utils/mapUtils");
-const { delay } = require("./utils/helpers");
+const { delay, prompt } = require("./utils/helpers");
 const { startThreads, filterSolutions } = require("./utils/solver");
 const { getSkinName } = require("./utils/skins");
 
 const initialize = async (token) => {
   console.log("获取地图信息");
   const mapInfo = await getMapInfo(token);
-  console.log("Map seed:", mapInfo.map_seed);
+  console.log("map seed:", mapInfo.map_seed);
   console.log("获取地图数据");
   const mapData = await getMap(mapInfo.map_md5[1], mapInfo.map_seed);
 
@@ -29,21 +28,28 @@ const waitForSomeTime = async (runningTime) => {
 };
 
 const challenge = async () => {
-  let retry_count = 0;
+  let retryCount = 0;
   let token;
+  let serverMode = false;
 
-  if (!process.argv.slice(2)[0]) {
-    console.log("未提供token");
-    exit(1);
+  if (process.argv.slice(2)[0] === "-t") {
+    token = process.argv.slice(2)[0];
+    serverMode = true;
+    if (!token) {
+      console.log("未提供token");
+      exit(1);
+    }
+  } else {
+    token = await prompt("请输入token: ");
   }
 
-  token = process.argv.slice(2)[0];
-
   while (1) {
-    console.log(">>>CLEAR<<<");
-    retry_count += 1;
+    if (serverMode) {
+      console.log(">>>CLEAR<<<");
+    }
+    retryCount += 1;
     try {
-      console.log(">>> 第", retry_count, "次尝试 <<<");
+      console.log(">>> 第", retryCount, "次尝试 <<<");
       console.log("===================================");
       await delay(3);
       console.log(">> 初始化地图信息 <<");
@@ -86,7 +92,9 @@ const challenge = async () => {
       }
       console.log(">> 完成 <<");
       console.log("获得皮肤", getSkinName(data.skin_id));
-      console.log(">>>COMPLETED<<<");
+      if (serverMode) {
+        console.log(">>>COMPLETED<<<");
+      }
       exit(0);
     } catch (e) {
       console.error(e);
